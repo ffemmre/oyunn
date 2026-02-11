@@ -252,26 +252,26 @@ const dialogs = {
   intro: [
     { who: 'narr', text: '2040 yılının bir akşamı...' },
     { who: 'narr', text: 'Sıla ve Fatih, rahat bir akşam geçiriyorlar.' },
-    { who: 'fatih', text: 'Sılacım, hatırlıyor musun o günleri?' },
+    { who: 'fatih', text: 'Aşkım, hatırlıyor musun o günleri?' },
     { who: 'sila', text: 'Hangi günleri aşkım? 😊' },
     { who: 'fatih', text: 'Avrupa\'yı gezdiğimiz günleri... Paris, Amsterdam, Berlin...' },
-    { who: 'sila', text: 'Aaa tabii! Uçağa yetişmek için nasıl koşmuştuk 😂' },
+    { who: 'sila', text: 'Ay evett! Uçağa yetişmek için nasıl koşmuştuk 😂' },
     { who: 'fatih', text: 'O salak liseli tayfa yüzünden neredeyse kaçırıyorduk!' },
     { who: 'sila', text: 'Hahaha aynen! Sonra iş aramıştık ya ikimiz de...' },
     { who: 'fatih', text: 'Ben iş, sen Erasmus stajı... O ilanların peşinde koşuyorduk.' },
-    { who: 'sila', text: 'Hobilerimi nasıl hayatıma katarım diye dert ediyordum...' },
+    { who: 'sila', text: 'Hobilerimizi nasıl hayatımıza katarız diye dert ediyorduk...' },
     { who: 'sila', text: 'Röportaj, marketing, design, event coordination...' },
-    { who: 'fatih', text: 'Ben de tiyatro sevdamla... Ama sonunda hallettik hepsini!' },
+    { who: 'fatih', text: 'Benim de tiyatro sevdam... Ama sonunda hallettik hepsini! (umarım)' },
     { who: 'sila', text: 'Evet! Sen ünlü bir oyuncu, ben de designer oldum 💕' },
     { who: 'fatih', text: 'Hadi o günleri bir daha yaşayalım mı? 🎮' },
-    { who: 'narr', text: '[ ENTER ile maceraya başla! ]' },
+    { who: 'narr', text: '[ ENTER ile bu eşsiz yolculuğa başla! ]' },
   ],
   level1intro: [
     { who: 'narr', text: '✈️  BÖLÜM 1: UÇAĞA YETİŞ!' },
     { who: 'narr', text: 'Havalimanında uçak kalkma saati yaklaşıyor!' },
-    { who: 'narr', text: 'Ama önünüzde bir sürü engel ve salak liseli tayfa var!' },
+    { who: 'narr', text: 'Ama önünüzde Pegasus mağduru insanlar ve salak liseli tayfa var!' },
     { who: 'fatih', text: 'Koş Sıla! Uçağı kaçıracağız!' },
-    { who: 'sila', text: 'Bu liseli çocuklar neden her yerde?! 😤' },
+    { who: 'sila', text: 'Bu mal liseliler neden her yerde?! 😤' },
     { who: 'narr', text: '← → : Koş   SPACE : Zıpla   Uçağa ulaş!' },
   ],
   level2intro: [
@@ -291,11 +291,11 @@ const dialogs = {
   ending: [
     { who: 'narr', text: '💕 Ve böylece...' },
     { who: 'narr', text: 'Her zorluk, her macera onları daha da güçlü yaptı.' },
-    { who: 'fatih', text: 'Seninle geçen her an bir hazine Sıla.' },
-    { who: 'sila', text: 'İyi ki varsın Fatih, iyi ki birlikte büyüdük 💕' },
-    { who: 'fatih', text: 'Seni çok seviyorum. Mutlu Sevgililer Günü! 💝' },
-    { who: 'sila', text: 'Ben de seni çok seviyorum aşkım! 💕' },
-    { who: 'narr', text: '🎉 MUTLU SEVGİLİLER GÜNÜ SILA & FATİH! 🎉' },
+    { who: 'fatih', text: 'Seninle geçen her an bir hazine.' },
+    { who: 'sila', text: 'İyi ki varsın iyi ki birlikteyiz ' },
+    { who: 'fatih', text: 'Seni çok seviyorum. Sevgililer Günümüz Kutlu Olsun' },
+    { who: 'sila', text: '💕' },
+    { who: 'narr', text: '🎉 MUTLU SEVGİLİLER SILA & FATİH! 🎉' },
     { who: 'narr', text: '14 Şubat 2026 - Sonsuza kadar birlikte 💕' },
   ]
 };
@@ -673,7 +673,7 @@ function drawLevel1() {
       ctx.fill();
       ctx.fillStyle = '#333';
       ctx.font = '6px "Press Start 2P"';
-      const taunts = ['HAHA','LOL','BRO','EYYY'];
+      const taunts = ['scheiße','AQQ','BRO','ABİ SA'];
       ctx.fillText(taunts[b.variant % 4], sx + 1, b.y - 12);
     }
   });
