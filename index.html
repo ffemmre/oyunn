@@ -250,7 +250,7 @@ document.addEventListener('keyup', e => { keys[e.code] = false; });
 // ============ DIALOG SYSTEM ============
 const dialogs = {
   intro: [
-    { who: 'narr', text: '2026 yılının bir akşamı...' },
+    { who: 'narr', text: '2040 yılının bir akşamı...' },
     { who: 'narr', text: 'Sıla ve Fatih, rahat bir akşam geçiriyorlar.' },
     { who: 'fatih', text: 'Sılacım, hatırlıyor musun o günleri?' },
     { who: 'sila', text: 'Hangi günleri aşkım? 😊' },
@@ -1338,8 +1338,11 @@ function switchState(s) {
   document.getElementById('hudRight').textContent = '';
 
   switch(s) {
+    case 'cutscene1': break;
     case 'level1': initLevel1(); break;
+    case 'cutscene2': initLevel2(); break;
     case 'level2': initLevel2(); break;
+    case 'cutscene3': initLevel3(); break;
     case 'level3': initLevel3(); break;
   }
 }
