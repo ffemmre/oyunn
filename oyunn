@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💕 Sıla & Fatih - Bizim Hikayemiz 💕</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Press Start 2P', monospace;
+    overflow: hidden;
+  }
+  #gameWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  canvas {
+    border: 4px solid #ff4081;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(255,64,129,0.4), 0 0 60px rgba(255,64,129,0.1);
+    image-rendering: pixelated;
+  }
+  #hud {
+    display: flex;
+    justify-content: space-between;
+    width: 800px;
+    padding: 4px 8px;
+    color: #ff80ab;
+    font-size: 9px;
+    min-height: 20px;
+  }
+</style>
+</head>
+<body>
+<div id="gameWrapper">
+  <div id="hud">
+    <span id="hudLeft"></span>
+    <span id="hudCenter"></span>
+    <span id="hudRight"></span>
+  </div>
+  <canvas id="c" width="800" height="500"></canvas>
+</div>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 800, H = 500;
+
+// ============ COLORS ============
+const C = {
+  skin: '#D2956A', skinDk: '#B87A52', hairBlk: '#1a1a1a', hairDk: '#2a1a0a',
+  glasses: '#3a3a3a', red: '#E03030', dkRed: '#B02020', dressBlk: '#1a1a1a',
+  dressGrn: '#2a5a2a', dressRed: '#8a2a2a', dressGold: '#c8a830',
+  jeans: '#6888a8', jeansDk: '#506878', shoe: '#2a2a2a', white: '#fff',
+  lip: '#cc4444', necklace: '#dd3333', lens: '#aabbcc'
+};
+
+// ============ PIXEL ART DRAWING ============
+function px(x, y, c, s=2) { ctx.fillStyle = c; ctx.fillRect(x*s, y*s, s, s); }
+function rect(x, y, w, h, c, s=2) { ctx.fillStyle = c; ctx.fillRect(x*s, y*s, w*s, h*s); }
+
+function drawFatih(ox, oy, scale, facing, frame, outfit) {
+  ctx.save();
+  ctx.translate(ox, oy);
+  ctx.scale(scale, scale);
+  if (facing === 'left') { ctx.scale(-1, 1); ctx.translate(-16*2, 0); }
+
+  // Hair
+  rect(4,0,9,2,C.hairDk); rect(3,1,11,2,C.hairDk); rect(3,2,11,2,C.hairDk);
+  rect(4,3,10,1,C.hairDk); px(3,0,C.hairDk); px(13,0,C.hairDk); px(14,1,C.hairDk);
+  px(2,2,C.hairDk); px(14,2,C.hairDk); px(14,3,C.hairDk);
+
+  // Face
+  rect(4,4,9,7,C.skin); rect(3,5,1,4,C.skin);
+  rect(13,4,1,4,C.hairDk); px(3,4,C.hairDk);
+
+  // Eyes
+  px(6,6,'#222'); px(7,6,'#222'); px(10,6,'#222'); px(11,6,'#222');
+  rect(6,5,2,1,C.hairDk); rect(10,5,2,1,C.hairDk);
+
+  // Mustache
+  rect(6,8,5,1,C.hairDk); rect(5,9,7,1,C.hairDk);
+  px(7,10,C.skinDk); px(8,10,C.skinDk); px(9,10,C.skinDk);
+
+  if (outfit === 'actor') {
+    // Black suit jacket
+    rect(3,11,11,7,'#111'); rect(2,11,1,5,'#111'); rect(14,11,1,5,'#111');
+    rect(1,12,2,3,'#111'); rect(14,12,2,3,'#111');
+    // White shirt underneath
+    rect(7,11,3,4,C.white);
+    // Bow tie
+    px(7,12,'#cc2222'); px(8,12,'#dd3333'); px(9,12,'#cc2222');
+    // Black pants
+    rect(3,18,5,6,'#1a1a1a'); rect(9,18,5,6,'#1a1a1a'); px(8,18,'#111'); px(8,19,'#111');
+    // Shoes
+    rect(3,24,5,2,'#222'); rect(9,24,5,2,'#222');
+  } else {
+    // Red Puma t-shirt
+    rect(3,11,11,7,C.red); rect(2,11,1,5,C.red); rect(14,11,1,5,C.red);
+    rect(1,12,2,3,C.red); rect(14,12,2,3,C.red);
+    // PUMA text
+    px(5,13,C.white); px(5,14,C.white); px(5,15,C.white); px(6,13,C.white);
+    px(7,13,C.white); px(7,14,C.white); px(7,15,C.white); px(8,15,C.white);
+    px(8,13,C.white); px(8,14,C.white);
+    px(9,13,C.white); px(9,14,C.white); px(9,15,C.white); px(10,14,C.white);
+    px(11,13,C.white); px(11,14,C.white); px(11,15,C.white);
+    px(12,14,C.white); px(12,15,C.white); px(13,13,C.white); px(13,14,C.white);
+    // Jeans
+    rect(3,18,5,6,C.jeans); rect(9,18,5,6,C.jeans);
+    px(8,18,C.jeansDk); px(8,19,C.jeansDk); px(8,20,C.jeansDk);
+    rect(3,24,5,2,C.shoe); rect(9,24,5,2,C.shoe);
+  }
+
+  // Arms
+  const ao = frame % 2 === 0 ? 0 : 1;
+  rect(0,13+ao,2,4,C.skin); rect(15,13-ao,2,4,C.skin);
+  rect(2,25,1,1,C.shoe); rect(14,25,1,1,C.shoe);
+
+  ctx.restore();
+}
+
+function drawSila(ox, oy, scale, facing, frame, outfit) {
+  ctx.save();
+  ctx.translate(ox, oy);
+  ctx.scale(scale, scale);
+  if (facing === 'left') { ctx.scale(-1, 1); ctx.translate(-16*2, 0); }
+
+  // Hair
+  rect(3,0,10,2,C.hairBlk); rect(2,1,12,2,C.hairBlk); rect(2,3,12,2,C.hairBlk);
+  rect(1,4,2,6,C.hairBlk); rect(13,4,2,6,C.hairBlk); rect(3,3,4,1,C.hairBlk);
+
+  // Face
+  rect(3,4,10,7,C.skin);
+
+  // Glasses
+  rect(4,6,3,2,C.glasses); rect(9,6,3,2,C.glasses); rect(7,6,2,1,C.glasses);
+  px(5,6,C.lens); px(10,6,C.lens);
+  px(5,7,'#222'); px(10,7,'#222');
+  px(5,5,C.hairBlk); px(6,5,C.hairBlk); px(10,5,C.hairBlk); px(11,5,C.hairBlk);
+
+  // Smile
+  px(6,9,C.lip); px(7,10,C.lip); px(8,10,C.lip); px(9,10,C.lip); px(10,9,C.lip);
+  px(7,9,C.white); px(8,9,C.white); px(9,9,C.white);
+
+  // Necklace
+  for (let i=5;i<=10;i++) px(i,11,C.necklace);
+  px(7,12,C.necklace); px(8,12,C.necklace);
+
+  if (outfit === 'designer') {
+    // Chic blazer
+    rect(3,12,10,9,'#2a2a5a'); rect(2,12,1,6,'#2a2a5a'); rect(13,12,1,6,'#2a2a5a');
+    // Lapels
+    px(5,12,'#3a3a7a'); px(6,12,'#3a3a7a'); px(10,12,'#3a3a7a'); px(11,12,'#3a3a7a');
+    px(6,13,'#3a3a7a'); px(10,13,'#3a3a7a');
+    // White shirt
+    rect(7,12,2,5,C.white);
+    // Skirt part
+    rect(3,17,10,4,'#2a2a5a');
+  } else {
+    // Floral dress
+    rect(3,12,10,9,C.dressBlk); rect(2,12,1,6,C.dressBlk); rect(13,12,1,6,C.dressBlk);
+    // Flowers
+    px(4,13,C.dressGrn); px(5,14,C.dressRed); px(6,13,C.dressGold);
+    px(8,14,C.dressGrn); px(10,13,C.dressRed); px(11,14,C.dressGold);
+    px(4,16,C.dressRed); px(6,17,C.dressGrn); px(8,16,C.dressGold);
+    px(10,17,C.dressGrn); px(5,18,C.dressGold); px(9,18,C.dressRed);
+    px(7,19,C.dressGrn); px(11,16,C.dressRed); px(4,19,C.dressGold);
+    px(12,15,C.dressGrn); px(3,15,C.dressRed);
+    rect(3,12,2,1,C.skin); rect(11,12,2,1,C.skin);
+  }
+
+  // Arms
+  const ao = frame % 2 === 0 ? 0 : 1;
+  rect(0,13+ao,3,4,C.skin); rect(13,13-ao,3,4,C.skin);
+
+  // Legs + shoes
+  rect(4,21,3,2,C.skin); rect(9,21,3,2,C.skin);
+  rect(3,23,4,2,C.shoe); rect(9,23,4,2,C.shoe);
+  rect(2,24,1,1,C.shoe); rect(13,24,1,1,C.shoe);
+
+  ctx.restore();
+}
+
+// ============ ANNOYING HIGH SCHOOL BOY SPRITE ============
+function drawHighSchoolBoy(ox, oy, scale, variant) {
+  ctx.save();
+  ctx.translate(ox, oy);
+  ctx.scale(scale, scale);
+
+  const hairColors = ['#FFD700', '#8B4513', '#FF6600'];
+  const shirtColors = ['#00AA00', '#0066CC', '#AA00AA'];
+  const hc = hairColors[variant % 3];
+  const sc = shirtColors[variant % 3];
+
+  // Spiky/messy hair
+  rect(4,0,8,3,hc); rect(3,1,2,2,hc); rect(11,0,2,3,hc);
+  px(5,0,hc); px(8,0,hc); px(12,0,hc);
+  if (variant === 0) { px(3,0,hc); px(13,1,hc); }
+
+  // Face
+  rect(4,3,8,6,C.skin); rect(3,4,1,3,C.skin);
+
+  // Dumb expression
+  px(5,5,'#222'); px(9,5,'#222');
+  // Goofy mouth
+  px(6,7,'#222'); px(7,7,'#222'); px(8,7,'#222');
+
+  // T-shirt
+  rect(3,9,10,5,sc); rect(2,9,1,4,sc); rect(13,9,1,4,sc);
+
+  // Arms
+  rect(0,10,3,3,C.skin); rect(13,10,3,3,C.skin);
+
+  // Shorts
+  rect(3,14,4,4,'#333'); rect(8,14,5,4,'#333');
+
+  // Legs + sneakers
+  rect(4,18,3,2,C.skin); rect(9,18,3,2,C.skin);
+  rect(3,20,4,2,'#eee'); rect(9,20,4,2,'#eee');
+  // Shoe stripe
+  px(4,20,'#dd2222'); px(10,20,'#dd2222');
+
+  ctx.restore();
+}
+
+// ============ GAME STATE ============
+let state = 'title';
+let stateTimer = 0;
+let dialogIndex = 0;
+let animFrame = 0;
+let animTimer = 0;
+let particles = [];
+let keys = {};
+let transition = { active: false, alpha: 0, target: '', fadeIn: true };
+
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Space' || e.code === 'Enter') e.preventDefault();
+  handleInput(e.code);
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+// ============ DIALOG SYSTEM ============
+const dialogs = {
+  intro: [
+    { who: 'narr', text: '2026 yılının bir akşamı...' },
+    { who: 'narr', text: 'Sıla ve Fatih, rahat bir akşam geçiriyorlar.' },
+    { who: 'fatih', text: 'Sılacım, hatırlıyor musun o günleri?' },
+    { who: 'sila', text: 'Hangi günleri aşkım? 😊' },
+    { who: 'fatih', text: 'Avrupa\'yı gezdiğimiz günleri... Paris, Amsterdam, Berlin...' },
+    { who: 'sila', text: 'Aaa tabii! Uçağa yetişmek için nasıl koşmuştuk 😂' },
+    { who: 'fatih', text: 'O salak liseli tayfa yüzünden neredeyse kaçırıyorduk!' },
+    { who: 'sila', text: 'Hahaha aynen! Sonra iş aramıştık ya ikimiz de...' },
+    { who: 'fatih', text: 'Ben iş, sen Erasmus stajı... O ilanların peşinde koşuyorduk.' },
+    { who: 'sila', text: 'Hobilerimi nasıl hayatıma katarım diye dert ediyordum...' },
+    { who: 'sila', text: 'Röportaj, marketing, design, event coordination...' },
+    { who: 'fatih', text: 'Ben de tiyatro sevdamla... Ama sonunda hallettik hepsini!' },
+    { who: 'sila', text: 'Evet! Sen ünlü bir oyuncu, ben de designer oldum 💕' },
+    { who: 'fatih', text: 'Hadi o günleri bir daha yaşayalım mı? 🎮' },
+    { who: 'narr', text: '[ ENTER ile maceraya başla! ]' },
+  ],
+  level1intro: [
+    { who: 'narr', text: '✈️  BÖLÜM 1: UÇAĞA YETİŞ!' },
+    { who: 'narr', text: 'Havalimanında uçak kalkma saati yaklaşıyor!' },
+    { who: 'narr', text: 'Ama önünüzde bir sürü engel ve salak liseli tayfa var!' },
+    { who: 'fatih', text: 'Koş Sıla! Uçağı kaçıracağız!' },
+    { who: 'sila', text: 'Bu liseli çocuklar neden her yerde?! 😤' },
+    { who: 'narr', text: '← → : Koş   SPACE : Zıpla   Uçağa ulaş!' },
+  ],
+  level2intro: [
+    { who: 'narr', text: '💼  BÖLÜM 2: İŞ AVI!' },
+    { who: 'narr', text: 'Avrupa dönüşü, iş arama zamanı!' },
+    { who: 'fatih', text: 'İş ilanları havada uçuşuyor!' },
+    { who: 'sila', text: 'Ben de staj ilanı arıyorum! Yakala!' },
+    { who: 'narr', text: '← → : Koş   SPACE : Zıpla   İlanları yakala!' },
+  ],
+  level3intro: [
+    { who: 'narr', text: '⭐  BÖLÜM 3: HAYALLERİMİZ GERÇEK OLDU!' },
+    { who: 'narr', text: 'Artık hayallerinize ulaştınız!' },
+    { who: 'fatih', text: 'Sahnelerin ünlü oyuncusu: FATİH!' },
+    { who: 'sila', text: 'Ödüllü designer: SILA!' },
+    { who: 'narr', text: 'Birlikte yıldızları toplayın! ⭐' },
+  ],
+  ending: [
+    { who: 'narr', text: '💕 Ve böylece...' },
+    { who: 'narr', text: 'Her zorluk, her macera onları daha da güçlü yaptı.' },
+    { who: 'fatih', text: 'Seninle geçen her an bir hazine Sıla.' },
+    { who: 'sila', text: 'İyi ki varsın Fatih, iyi ki birlikte büyüdük 💕' },
+    { who: 'fatih', text: 'Seni çok seviyorum. Mutlu Sevgililer Günü! 💝' },
+    { who: 'sila', text: 'Ben de seni çok seviyorum aşkım! 💕' },
+    { who: 'narr', text: '🎉 MUTLU SEVGİLİLER GÜNÜ SILA & FATİH! 🎉' },
+    { who: 'narr', text: '14 Şubat 2026 - Sonsuza kadar birlikte 💕' },
+  ]
+};
+
+// ============ COZY ROOM SCENE ============
+function drawCozyRoom() {
+  // Wall
+  const wg = ctx.createLinearGradient(0,0,0,H);
+  wg.addColorStop(0, '#2a1a2e'); wg.addColorStop(1, '#1a1020');
+  ctx.fillStyle = wg; ctx.fillRect(0,0,W,H);
+
+  // Wallpaper pattern
+  ctx.fillStyle = 'rgba(255,200,220,0.03)';
+  for (let y = 0; y < H; y += 30) {
+    for (let x = 0; x < W; x += 30) {
+      ctx.fillRect(x+10, y+10, 8, 8);
+    }
+  }
+
+  // Floor
+  ctx.fillStyle = '#3a2518';
+  ctx.fillRect(0, 370, W, 130);
+  ctx.fillStyle = '#4a3020';
+  for (let x = 0; x < W; x += 60) {
+    ctx.fillRect(x, 370, 55, 130);
+  }
+
+  // Window with night sky
+  ctx.fillStyle = '#1a1a3a';
+  ctx.fillRect(500, 60, 160, 120);
+  ctx.fillStyle = '#FFE8C0';
+  ctx.beginPath(); ctx.arc(555, 100, 15, 0, Math.PI*2); ctx.fill();
+  // Window stars
+  ctx.fillStyle = '#fff';
+  [[530,75],[580,80],[620,90],[545,130],[600,70],[615,140]].forEach(([sx,sy]) => {
+    ctx.fillRect(sx, sy, 2, 2);
+  });
+  // Window frame
+  ctx.strokeStyle = '#5a4030'; ctx.lineWidth = 6;
+  ctx.strokeRect(500, 60, 160, 120);
+  ctx.beginPath(); ctx.moveTo(580,60); ctx.lineTo(580,180); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(500,120); ctx.lineTo(660,120); ctx.stroke();
+
+  // Curtains
+  ctx.fillStyle = '#8a3050';
+  ctx.fillRect(488, 45, 20, 145); ctx.fillRect(652, 45, 20, 145);
+  ctx.fillStyle = '#6a2040';
+  ctx.fillRect(488, 45, 20, 10); ctx.fillRect(652, 45, 20, 10);
+
+  // Picture frame on wall
+  ctx.fillStyle = '#5a4030'; ctx.fillRect(140, 80, 100, 70);
+  ctx.fillStyle = '#3a6040'; ctx.fillRect(146, 86, 88, 58);
+  // Eiffel tower silhouette in picture
+  ctx.fillStyle = '#2a4a30';
+  ctx.beginPath(); ctx.moveTo(190, 140); ctx.lineTo(195, 95); ctx.lineTo(200, 140); ctx.fill();
+
+  // Bookshelf
+  ctx.fillStyle = '#5a3a20'; ctx.fillRect(30, 100, 80, 15);
+  ctx.fillStyle = '#cc3333'; ctx.fillRect(35, 85, 12, 15);
+  ctx.fillStyle = '#3366cc'; ctx.fillRect(50, 88, 10, 12);
+  ctx.fillStyle = '#33aa55'; ctx.fillRect(63, 86, 11, 14);
+  ctx.fillStyle = '#ddaa33'; ctx.fillRect(77, 87, 10, 13);
+
+  // Lamp
+  ctx.fillStyle = '#FFD080';
+  ctx.beginPath(); ctx.moveTo(710, 210); ctx.lineTo(740, 260); ctx.lineTo(680, 260); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#5a4530'; ctx.fillRect(707, 260, 6, 80);
+  ctx.fillRect(695, 335, 30, 8);
+  // Lamp glow
+  const lg = ctx.createRadialGradient(710, 250, 20, 710, 280, 120);
+  lg.addColorStop(0, 'rgba(255,210,130,0.15)'); lg.addColorStop(1, 'rgba(255,210,130,0)');
+  ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(710, 280, 120, 0, Math.PI*2); ctx.fill();
+
+  // Couch
+  ctx.fillStyle = '#6a3040'; ctx.fillRect(180, 290, 350, 80);
+  ctx.fillStyle = '#5a2535'; ctx.fillRect(170, 280, 20, 95); ctx.fillRect(520, 280, 20, 95);
+  ctx.fillStyle = '#7a3a50';
+  ctx.fillRect(195, 295, 80, 40); ctx.fillRect(290, 295, 80, 40); ctx.fillRect(385, 295, 80, 40);
+  // Couch legs
+  ctx.fillStyle = '#3a2010';
+  ctx.fillRect(185, 370, 10, 8); ctx.fillRect(525, 370, 10, 8);
+
+  // Rug
+  ctx.fillStyle = 'rgba(180,80,100,0.3)';
+  ctx.beginPath(); ctx.ellipse(350, 400, 180, 30, 0, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = 'rgba(200,100,120,0.2)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(350, 400, 160, 25, 0, 0, Math.PI*2); ctx.stroke();
+
+  // Coffee table
+  ctx.fillStyle = '#4a3020'; ctx.fillRect(280, 380, 140, 10);
+  ctx.fillRect(290, 390, 8, 20); ctx.fillRect(400, 390, 8, 20);
+  // Coffee cups
+  ctx.fillStyle = '#ddd'; ctx.fillRect(310, 373, 12, 8); ctx.fillRect(380, 373, 12, 8);
+  ctx.fillStyle = '#6a3020'; ctx.fillRect(312, 374, 8, 5); ctx.fillRect(382, 374, 8, 5);
+
+  // Cat on rug
+  const ct = Date.now() * 0.001;
+  ctx.fillStyle = '#aa7744';
+  ctx.beginPath(); ctx.ellipse(420, 395, 14, 8, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(432, 390, 6, 0, Math.PI*2); ctx.fill();
+  // Cat ears
+  ctx.beginPath(); ctx.moveTo(429,384); ctx.lineTo(431,380); ctx.lineTo(433,384); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(433,384); ctx.lineTo(435,380); ctx.lineTo(437,384); ctx.fill();
+  // Cat tail
+  ctx.strokeStyle = '#aa7744'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(406,395);
+  ctx.quadraticCurveTo(395, 385 + Math.sin(ct)*5, 398, 380); ctx.stroke();
+
+  // Floating hearts
+  const t = Date.now() * 0.002;
+  for (let i = 0; i < 5; i++) {
+    const hx = 200 + i * 100 + Math.sin(t + i) * 15;
+    const hy = 220 + Math.cos(t * 0.7 + i * 1.5) * 10;
+    const a = 0.15 + Math.sin(t + i * 2) * 0.08;
+    drawHeart(hx, hy, 6, `rgba(255,128,180,${a})`);
+  }
+
+  // Characters on couch
+  drawSila(250, 248, 1.6, 'right', Math.floor(t) % 2, 'normal');
+  drawFatih(370, 244, 1.6, 'left', Math.floor(t) % 2, 'normal');
+}
+
+function drawHeart(x, y, size, color) {
+  ctx.save(); ctx.translate(x, y); ctx.fillStyle = color;
+  ctx.beginPath(); ctx.moveTo(0, size*0.3);
+  ctx.bezierCurveTo(-size/2, -size*0.3, -size, size*0.2, 0, size);
+  ctx.bezierCurveTo(size, size*0.2, size/2, -size*0.3, 0, size*0.3);
+  ctx.fill(); ctx.restore();
+}
+
+// ============ DIALOG BOX ============
+function drawDialogBox(dialog) {
+  if (!dialog) return;
+  const d = dialog;
+
+  // Box
+  ctx.fillStyle = 'rgba(10,5,20,0.92)';
+  ctx.fillRect(40, H - 130, W - 80, 110);
+  ctx.strokeStyle = d.who === 'fatih' ? '#80d0ff' : d.who === 'sila' ? '#ff80ab' : '#aaa';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(40, H - 130, W - 80, 110);
+
+  // Speaker name
+  if (d.who !== 'narr') {
+    const name = d.who === 'fatih' ? 'FATİH' : 'SILA';
+    ctx.fillStyle = d.who === 'fatih' ? '#80d0ff' : '#ff80ab';
+    ctx.font = '10px "Press Start 2P"';
+    ctx.fillText(name, 60, H - 110);
+  }
+
+  // Text with typewriter
+  const maxChars = Math.floor(stateTimer / 2);
+  const displayText = d.text.substring(0, maxChars);
+  ctx.fillStyle = '#e0d0e8';
+  ctx.font = '11px "Press Start 2P"';
+
+  // Word wrap
+  const words = displayText.split(' ');
+  let line = '';
+  let lineY = d.who === 'narr' ? H - 100 : H - 85;
+  words.forEach(word => {
+    const test = line + word + ' ';
+    if (ctx.measureText(test).width > W - 140) {
+      ctx.fillText(line, 60, lineY);
+      line = word + ' ';
+      lineY += 22;
+    } else {
+      line = test;
+    }
+  });
+  ctx.fillText(line, 60, lineY);
+
+  // Continue indicator
+  if (maxChars >= d.text.length) {
+    const blink = Math.floor(Date.now() / 500) % 2;
+    if (blink) {
+      ctx.fillStyle = '#ff80ab';
+      ctx.font = '8px "Press Start 2P"';
+      ctx.fillText('▼ ENTER', W - 180, H - 30);
+    }
+  }
+}
+
+// ============ LEVEL 1: AIRPORT RUSH ============
+let L1 = {};
+function initLevel1() {
+  L1 = {
+    player: { x: 60, y: 0, vy: 0, onGround: false, facing: 'right', runFrame: 0 },
+    groundY: 380,
+    cameraX: 0,
+    levelW: 4000,
+    platforms: [],
+    boys: [],
+    collected: 0,
+    suitcases: [],
+    plane: { x: 3800, y: 200 },
+    won: false,
+    clouds: []
+  };
+
+  // Airport floor platforms
+  L1.platforms.push({ x: 0, y: L1.groundY, w: L1.levelW + 200, h: 120 });
+
+  // Floating platforms (benches, luggage carts etc)
+  for (let i = 0; i < 15; i++) {
+    L1.platforms.push({
+      x: 300 + i * 250 + Math.random() * 80,
+      y: L1.groundY - 70 - Math.random() * 80,
+      w: 70 + Math.random() * 40,
+      h: 12
+    });
+  }
+
+  // High school boys as obstacles
+  for (let i = 0; i < 12; i++) {
+    L1.boys.push({
+      x: 400 + i * 300 + Math.random() * 100,
+      y: L1.groundY - 42,
+      variant: i % 3,
+      vx: (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random()),
+      baseX: 400 + i * 300 + Math.random() * 100,
+      range: 40 + Math.random() * 60
+    });
+  }
+
+  // Suitcases (collectibles)
+  for (let i = 0; i < 10; i++) {
+    L1.suitcases.push({
+      x: 250 + i * 350 + Math.random() * 100,
+      y: L1.groundY - 30 - Math.random() * 120,
+      collected: false
+    });
+  }
+
+  for (let i = 0; i < 8; i++) {
+    L1.clouds.push({ x: Math.random() * L1.levelW, y: 20 + Math.random() * 80, w: 60 + Math.random() * 60 });
+  }
+
+  L1.player.y = L1.groundY - 52;
+}
+
+function updateLevel1() {
+  const p = L1.player;
+
+  if (keys['ArrowLeft'] || keys['KeyA']) { p.x -= 4.5; p.facing = 'left'; p.runFrame += 0.15; }
+  else if (keys['ArrowRight'] || keys['KeyD']) { p.x += 4.5; p.facing = 'right'; p.runFrame += 0.15; }
+
+  if ((keys['Space'] || keys['ArrowUp']) && p.onGround) { p.vy = -13; p.onGround = false; }
+
+  p.vy += 0.65;
+  p.y += p.vy;
+  if (p.x < 0) p.x = 0;
+
+  p.onGround = false;
+  L1.platforms.forEach(pl => {
+    if (p.x + 32 > pl.x && p.x < pl.x + pl.w &&
+        p.y + 52 > pl.y && p.y + 52 < pl.y + pl.h + 14 && p.vy >= 0) {
+      p.y = pl.y - 52;
+      p.vy = 0;
+      p.onGround = true;
+    }
+  });
+
+  // Boys movement
+  L1.boys.forEach(b => {
+    b.x += b.vx;
+    if (Math.abs(b.x - b.baseX) > b.range) b.vx *= -1;
+
+    // Collision with player - bounce back
+    if (Math.abs(p.x - b.x) < 28 && Math.abs(p.y + 26 - b.y - 20) < 30) {
+      p.vy = -8;
+      p.x += p.facing === 'right' ? -30 : 30;
+      spawnParticles(p.x + 16, p.y + 20, '#ff4444', 6);
+    }
+  });
+
+  // Suitcase collection
+  L1.suitcases.forEach(s => {
+    if (s.collected) return;
+    if (Math.abs(p.x + 16 - s.x - 8) < 24 && Math.abs(p.y + 26 - s.y - 8) < 24) {
+      s.collected = true;
+      L1.collected++;
+      spawnParticles(s.x, s.y, '#ffaa00', 8);
+    }
+  });
+
+  // Plane reached
+  if (p.x > L1.plane.x - 60 && !L1.won) {
+    L1.won = true;
+    setTimeout(() => startTransition('cutscene2'), 1500);
+  }
+
+  // Camera
+  const targetCam = p.x - W / 3;
+  L1.cameraX += (targetCam - L1.cameraX) * 0.08;
+  L1.cameraX = Math.max(0, Math.min(L1.cameraX, L1.levelW - W));
+
+  document.getElementById('hudLeft').textContent = `🧳 x ${L1.collected}`;
+  document.getElementById('hudCenter').textContent = '✈️ BÖLÜM 1: UÇAĞA YETİŞ!';
+  document.getElementById('hudRight').textContent = `Uçak: ${Math.max(0, Math.floor((L1.plane.x - p.x) / 50))}m`;
+}
+
+function drawLevel1() {
+  // Airport sky
+  const sg = ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#1a2a4a'); sg.addColorStop(0.5,'#2a3a5a'); sg.addColorStop(1,'#3a4a6a');
+  ctx.fillStyle = sg; ctx.fillRect(0,0,W,H);
+
+  // Clouds
+  L1.clouds.forEach(c => {
+    const sx = c.x - L1.cameraX * 0.3;
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.beginPath(); ctx.ellipse(sx, c.y, c.w/2, 15, 0, 0, Math.PI*2); ctx.fill();
+  });
+
+  // Airport building silhouette
+  ctx.fillStyle = '#253050';
+  ctx.fillRect(0, 250, W, 130);
+  // Windows
+  for (let x = 20; x < W; x += 35) {
+    ctx.fillStyle = 'rgba(255,220,150,0.3)';
+    ctx.fillRect(x - L1.cameraX * 0.1 % 35, 265, 18, 25);
+  }
+  // Control tower
+  ctx.fillStyle = '#2a3555';
+  ctx.fillRect(600 - L1.cameraX * 0.15, 180, 30, 100);
+  ctx.fillRect(585 - L1.cameraX * 0.15, 170, 60, 15);
+
+  // Ground (airport floor)
+  ctx.fillStyle = '#4a4a5a';
+  ctx.fillRect(0, L1.groundY, W, 120);
+  // Floor tiles
+  ctx.strokeStyle = '#555565'; ctx.lineWidth = 1;
+  for (let x = -L1.cameraX % 60; x < W; x += 60) {
+    ctx.beginPath(); ctx.moveTo(x, L1.groundY); ctx.lineTo(x, H); ctx.stroke();
+  }
+  // Yellow line
+  ctx.fillStyle = '#ccaa00';
+  ctx.fillRect(0, L1.groundY - 3, W, 3);
+
+  // Platforms
+  L1.platforms.forEach((pl, i) => {
+    if (i === 0) return;
+    const sx = pl.x - L1.cameraX;
+    if (sx > W + 50 || sx + pl.w < -50) return;
+    ctx.fillStyle = '#5a5a6a'; ctx.fillRect(sx, pl.y, pl.w, pl.h);
+    ctx.fillStyle = '#6a6a7a'; ctx.fillRect(sx, pl.y, pl.w, 3);
+  });
+
+  // Suitcases
+  L1.suitcases.forEach(s => {
+    if (s.collected) return;
+    const sx = s.x - L1.cameraX;
+    if (sx > W + 30 || sx < -30) return;
+    const bob = Math.sin(Date.now() * 0.003 + s.x * 0.01) * 3;
+    // Suitcase body
+    ctx.fillStyle = '#cc6622'; ctx.fillRect(sx, s.y + bob, 20, 16);
+    ctx.fillStyle = '#aa5511'; ctx.fillRect(sx + 2, s.y + bob + 2, 16, 12);
+    ctx.fillStyle = '#ddaa00'; ctx.fillRect(sx + 8, s.y + bob - 2, 4, 4);
+    // Glow
+    ctx.fillStyle = 'rgba(255,170,0,0.15)';
+    ctx.beginPath(); ctx.arc(sx+10, s.y+8+bob, 16, 0, Math.PI*2); ctx.fill();
+  });
+
+  // High school boys
+  L1.boys.forEach(b => {
+    const sx = b.x - L1.cameraX;
+    if (sx > W + 50 || sx < -50) return;
+    drawHighSchoolBoy(sx, b.y, 1.4, b.variant);
+    // Annoying speech bubble
+    if (Math.sin(Date.now() * 0.002 + b.x) > 0.7) {
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath();
+      ctx.ellipse(sx + 12, b.y - 15, 22, 10, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#333';
+      ctx.font = '6px "Press Start 2P"';
+      const taunts = ['HAHA','LOL','BRO','EYYY'];
+      ctx.fillText(taunts[b.variant % 4], sx + 1, b.y - 12);
+    }
+  });
+
+  // Plane at end
+  const planeX = L1.plane.x - L1.cameraX;
+  if (planeX < W + 100) {
+    ctx.fillStyle = '#ccc';
+    // Fuselage
+    ctx.beginPath(); ctx.ellipse(planeX, L1.plane.y, 80, 25, 0, 0, Math.PI*2); ctx.fill();
+    // Tail
+    ctx.fillStyle = '#aaa';
+    ctx.beginPath(); ctx.moveTo(planeX-70,L1.plane.y); ctx.lineTo(planeX-90,L1.plane.y-35);
+    ctx.lineTo(planeX-50,L1.plane.y); ctx.fill();
+    // Wing
+    ctx.beginPath(); ctx.moveTo(planeX-10,L1.plane.y+10); ctx.lineTo(planeX+10,L1.plane.y+40);
+    ctx.lineTo(planeX+40,L1.plane.y+10); ctx.fill();
+    // Windows
+    ctx.fillStyle = '#6688aa';
+    for (let i = -4; i < 5; i++) {
+      ctx.beginPath(); ctx.arc(planeX + i*12, L1.plane.y - 5, 4, 0, Math.PI*2); ctx.fill();
+    }
+    // Cockpit
+    ctx.fillStyle = '#88aacc';
+    ctx.beginPath(); ctx.ellipse(planeX+70, L1.plane.y-5, 15, 12, 0.2, 0, Math.PI*2); ctx.fill();
+    // "Paris" sign
+    ctx.fillStyle = '#ff4081'; ctx.font = '10px "Press Start 2P"';
+    ctx.fillText('PARIS ✈️', planeX - 30, L1.plane.y - 40);
+  }
+
+  // Player
+  const psx = L1.player.x - L1.cameraX;
+  drawFatih(psx, L1.player.y, 1.7, L1.player.facing, Math.floor(L1.player.runFrame), 'normal');
+  // Sıla follows behind
+  drawSila(psx - 50, L1.player.y + 2, 1.5, L1.player.facing, Math.floor(L1.player.runFrame), 'normal');
+
+  drawParticles(L1.cameraX);
+
+  if (L1.won) {
+    ctx.fillStyle = `rgba(255,255,255,${Math.min(1, (stateTimer - 10) * 0.02)})`;
+    ctx.font = '18px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillText('✈️ UÇAĞA YETİŞTİNİZ!', W/2, H/2);
+    ctx.textAlign = 'left';
+  }
+}
+
+// ============ LEVEL 2: JOB HUNT ============
+let L2 = {};
+function initLevel2() {
+  L2 = {
+    player: { x: 60, y: 0, vy: 0, onGround: false, facing: 'right', runFrame: 0 },
+    groundY: 400,
+    cameraX: 0,
+    levelW: 3500,
+    platforms: [],
+    jobs: [],
+    collected: 0,
+    target: 12,
+    timer: 60 * 60, // 60 seconds at 60fps
+    won: false,
+    buildings: [],
+    clouds: []
+  };
+
+  L2.platforms.push({ x: 0, y: L2.groundY, w: L2.levelW + 200, h: 100 });
+
+  // City platforms (buildings to jump on)
+  for (let i = 0; i < 18; i++) {
+    L2.platforms.push({
+      x: 200 + i * 180 + Math.random() * 60,
+      y: L2.groundY - 60 - Math.random() * 120,
+      w: 65 + Math.random() * 45,
+      h: 14
+    });
+  }
+
+  // Job postings floating
+  const jobTexts = ['SDR','BDR','Marketing','Design','Erasmus','Staj','Event Coord.',
+                    'Sales','Tech Lead','Creative Dir.','PM','UX Design'];
+  for (let i = 0; i < 20; i++) {
+    L2.jobs.push({
+      x: 200 + i * 160 + Math.random() * 80,
+      y: 100 + Math.random() * 200,
+      vy: Math.sin(i) * 0.5,
+      vx: (Math.random() - 0.5) * 1.5,
+      text: jobTexts[i % jobTexts.length],
+      collected: false
+    });
+  }
+
+  // Background buildings
+  for (let i = 0; i < 15; i++) {
+    L2.buildings.push({
+      x: i * 200 + Math.random() * 80,
+      h: 80 + Math.random() * 150,
+      w: 50 + Math.random() * 60,
+      color: `hsl(${220 + Math.random()*30}, 30%, ${12 + Math.random()*8}%)`
+    });
+  }
+
+  for (let i = 0; i < 8; i++) {
+    L2.clouds.push({ x: Math.random()*L2.levelW, y: 15 + Math.random()*60, w: 50+Math.random()*50 });
+  }
+
+  L2.player.y = L2.groundY - 52;
+}
+
+function updateLevel2() {
+  const p = L2.player;
+
+  if (keys['ArrowLeft'] || keys['KeyA']) { p.x -= 4.5; p.facing = 'left'; p.runFrame += 0.15; }
+  else if (keys['ArrowRight'] || keys['KeyD']) { p.x += 4.5; p.facing = 'right'; p.runFrame += 0.15; }
+  if ((keys['Space'] || keys['ArrowUp']) && p.onGround) { p.vy = -13.5; p.onGround = false; }
+
+  p.vy += 0.6;
+  p.y += p.vy;
+  if (p.x < 0) p.x = 0;
+
+  p.onGround = false;
+  L2.platforms.forEach(pl => {
+    if (p.x + 32 > pl.x && p.x < pl.x + pl.w &&
+        p.y + 52 > pl.y && p.y + 52 < pl.y + pl.h + 14 && p.vy >= 0) {
+      p.y = pl.y - 52; p.vy = 0; p.onGround = true;
+    }
+  });
+
+  // Floating jobs movement
+  L2.jobs.forEach(j => {
+    if (j.collected) return;
+    j.y += j.vy;
+    j.x += j.vx;
+    if (j.y < 50 || j.y > 350) j.vy *= -1;
+    j.vy += (Math.random() - 0.5) * 0.05;
+
+    if (Math.abs(p.x + 16 - j.x) < 30 && Math.abs(p.y + 26 - j.y) < 30) {
+      j.collected = true;
+      L2.collected++;
+      spawnParticles(j.x, j.y, '#44ff88', 10);
+    }
+  });
+
+  L2.timer--;
+
+  if (L2.collected >= L2.target && !L2.won) {
+    L2.won = true;
+    setTimeout(() => startTransition('cutscene3'), 1500);
+  }
+
+  const targetCam = p.x - W / 3;
+  L2.cameraX += (targetCam - L2.cameraX) * 0.08;
+  L2.cameraX = Math.max(0, Math.min(L2.cameraX, L2.levelW - W));
+
+  document.getElementById('hudLeft').textContent = `💼 ${L2.collected} / ${L2.target}`;
+  document.getElementById('hudCenter').textContent = '💼 BÖLÜM 2: İŞ AVI!';
+  document.getElementById('hudRight').textContent = `⏱️ ${Math.max(0, Math.floor(L2.timer/60))}s`;
+}
+
+function drawLevel2() {
+  // City evening sky
+  const sg = ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#1a1030'); sg.addColorStop(0.4,'#2a1840'); sg.addColorStop(1,'#3a2050');
+  ctx.fillStyle = sg; ctx.fillRect(0,0,W,H);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  for (let i = 0; i < 40; i++) {
+    const sx = (i * 137 + L2.cameraX * 0.05) % W;
+    const sy = (i * 89) % (H * 0.4);
+    ctx.fillRect(sx, sy, 1.5, 1.5);
+  }
+
+  // Buildings
+  L2.buildings.forEach(b => {
+    const sx = b.x - L2.cameraX * 0.2;
+    ctx.fillStyle = b.color;
+    ctx.fillRect(sx, L2.groundY - b.h, b.w, b.h);
+    ctx.fillStyle = 'rgba(255,200,100,0.25)';
+    for (let wy = 10; wy < b.h - 10; wy += 18) {
+      for (let wx = 6; wx < b.w - 6; wx += 14) {
+        if (Math.random() > 0.2) ctx.fillRect(sx+wx, L2.groundY-b.h+wy, 7, 9);
+      }
+    }
+  });
+
+  // Ground (city sidewalk)
+  ctx.fillStyle = '#3a3a4a'; ctx.fillRect(0, L2.groundY, W, 100);
+  ctx.fillStyle = '#4a4a5a';
+  for (let x = -L2.cameraX % 40; x < W; x += 40) ctx.fillRect(x, L2.groundY, 38, 100);
+
+  // Platforms
+  L2.platforms.forEach((pl,i) => {
+    if (i === 0) return;
+    const sx = pl.x - L2.cameraX;
+    if (sx > W+50 || sx+pl.w < -50) return;
+    ctx.fillStyle = '#4a4060'; ctx.fillRect(sx, pl.y, pl.w, pl.h);
+    ctx.fillStyle = '#5a5080'; ctx.fillRect(sx, pl.y, pl.w, 3);
+  });
+
+  // Job postings
+  L2.jobs.forEach(j => {
+    if (j.collected) return;
+    const sx = j.x - L2.cameraX;
+    if (sx > W+60 || sx < -60) return;
+    const bob = Math.sin(Date.now()*0.003 + j.x*0.01) * 3;
+
+    // Paper
+    ctx.fillStyle = '#fffff0';
+    ctx.fillRect(sx - 20, j.y + bob - 12, 44, 28);
+    // Fold
+    ctx.fillStyle = '#eeeee0';
+    ctx.beginPath();
+    ctx.moveTo(sx+24, j.y+bob-12); ctx.lineTo(sx+24, j.y+bob-4); ctx.lineTo(sx+16, j.y+bob-12);
+    ctx.fill();
+    // Text on paper
+    ctx.fillStyle = '#333';
+    ctx.font = '5px "Press Start 2P"';
+    ctx.fillText(j.text, sx - 16, j.y + bob + 2);
+    // Lines
+    ctx.fillStyle = '#aaa';
+    ctx.fillRect(sx - 16, j.y + bob + 6, 30, 1);
+    ctx.fillRect(sx - 16, j.y + bob + 10, 22, 1);
+    // Glow
+    ctx.fillStyle = 'rgba(100,255,150,0.12)';
+    ctx.beginPath(); ctx.arc(sx, j.y+bob, 22, 0, Math.PI*2); ctx.fill();
+  });
+
+  // Player
+  const psx = L2.player.x - L2.cameraX;
+  drawFatih(psx, L2.player.y, 1.7, L2.player.facing, Math.floor(L2.player.runFrame), 'normal');
+  drawSila(psx - 45, L2.player.y + 2, 1.5, L2.player.facing, Math.floor(L2.player.runFrame), 'normal');
+
+  drawParticles(L2.cameraX);
+
+  if (L2.won) {
+    ctx.fillStyle = `rgba(255,255,255,${Math.min(1, (stateTimer-10)*0.02)})`;
+    ctx.font = '16px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillText('💼 İŞLERİ BULDUNUZ!', W/2, H/2);
+    ctx.textAlign = 'left';
+  }
+}
+
+// ============ LEVEL 3: DREAMS REALIZED ============
+let L3 = {};
+function initLevel3() {
+  L3 = {
+    player: { x: 60, y: 0, vy: 0, onGround: false, facing: 'right', runFrame: 0 },
+    groundY: 390,
+    cameraX: 0,
+    levelW: 3000,
+    platforms: [],
+    stars: [],
+    collected: 0,
+    target: 15,
+    won: false,
+    spotlights: []
+  };
+
+  L3.platforms.push({ x: 0, y: L3.groundY, w: L3.levelW + 200, h: 110 });
+
+  // Red carpet / stage platforms
+  for (let i = 0; i < 14; i++) {
+    L3.platforms.push({
+      x: 200 + i * 200 + Math.random() * 60,
+      y: L3.groundY - 50 - Math.random() * 130,
+      w: 70 + Math.random() * 40,
+      h: 14
+    });
+  }
+
+  // Stars to collect
+  for (let i = 0; i < 22; i++) {
+    L3.stars.push({
+      x: 180 + i * 130 + Math.random() * 60,
+      y: 80 + Math.random() * 250,
+      collected: false,
+      angle: Math.random() * Math.PI * 2
+    });
+  }
+
+  // Spotlights
+  for (let i = 0; i < 6; i++) {
+    L3.spotlights.push({
+      x: 300 + i * 450,
+      angle: Math.random() * 0.5 - 0.25,
+      speed: 0.005 + Math.random() * 0.005
+    });
+  }
+
+  L3.player.y = L3.groundY - 52;
+}
+
+function updateLevel3() {
+  const p = L3.player;
+
+  if (keys['ArrowLeft'] || keys['KeyA']) { p.x -= 5; p.facing = 'left'; p.runFrame += 0.15; }
+  else if (keys['ArrowRight'] || keys['KeyD']) { p.x += 5; p.facing = 'right'; p.runFrame += 0.15; }
+  if ((keys['Space'] || keys['ArrowUp']) && p.onGround) { p.vy = -14; p.onGround = false; }
+
+  p.vy += 0.6;
+  p.y += p.vy;
+  if (p.x < 0) p.x = 0;
+
+  p.onGround = false;
+  L3.platforms.forEach(pl => {
+    if (p.x + 32 > pl.x && p.x < pl.x + pl.w &&
+        p.y + 52 > pl.y && p.y + 52 < pl.y + pl.h + 14 && p.vy >= 0) {
+      p.y = pl.y - 52; p.vy = 0; p.onGround = true;
+    }
+  });
+
+  // Star collection
+  L3.stars.forEach(s => {
+    if (s.collected) return;
+    s.angle += 0.03;
+    if (Math.abs(p.x + 16 - s.x) < 26 && Math.abs(p.y + 26 - s.y) < 26) {
+      s.collected = true;
+      L3.collected++;
+      spawnParticles(s.x, s.y, '#FFD700', 12);
+    }
+  });
+
+  if (L3.collected >= L3.target && !L3.won) {
+    L3.won = true;
+    setTimeout(() => startTransition('ending'), 2000);
+  }
+
+  const targetCam = p.x - W / 3;
+  L3.cameraX += (targetCam - L3.cameraX) * 0.08;
+  L3.cameraX = Math.max(0, Math.min(L3.cameraX, L3.levelW - W));
+
+  document.getElementById('hudLeft').textContent = `⭐ ${L3.collected} / ${L3.target}`;
+  document.getElementById('hudCenter').textContent = '⭐ BÖLÜM 3: HAYALLER!';
+  document.getElementById('hudRight').textContent = '';
+}
+
+function drawLevel3() {
+  // Glamorous dark stage background
+  const sg = ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#0a0515'); sg.addColorStop(0.5,'#150a20'); sg.addColorStop(1,'#1a0a15');
+  ctx.fillStyle = sg; ctx.fillRect(0,0,W,H);
+
+  // Spotlights
+  L3.spotlights.forEach(sp => {
+    sp.angle += sp.speed;
+    const sx = sp.x - L3.cameraX * 0.5;
+    const ang = Math.sin(sp.angle) * 0.3;
+    ctx.save();
+    ctx.translate(sx, 0);
+    ctx.rotate(ang);
+    const lg = ctx.createLinearGradient(0, 0, 0, H);
+    lg.addColorStop(0, 'rgba(255,220,150,0.08)');
+    lg.addColorStop(1, 'rgba(255,220,150,0)');
+    ctx.fillStyle = lg;
+    ctx.beginPath();
+    ctx.moveTo(-5, 0); ctx.lineTo(-80, H); ctx.lineTo(80, H); ctx.lineTo(5, 0);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // Sparkles in air
+  const t = Date.now() * 0.001;
+  for (let i = 0; i < 20; i++) {
+    const sx = (i * 173 + t * 20) % W;
+    const sy = (i * 97 + Math.sin(t + i) * 30) % (H * 0.7);
+    const alpha = 0.3 + 0.3 * Math.sin(t * 3 + i);
+    ctx.fillStyle = `rgba(255,215,0,${alpha})`;
+    ctx.fillRect(sx, sy, 2, 2);
+  }
+
+  // Red carpet ground
+  ctx.fillStyle = '#6a1020';
+  ctx.fillRect(0, L3.groundY, W, 110);
+  ctx.fillStyle = '#8a1830';
+  ctx.fillRect(0, L3.groundY, W, 4);
+  // Gold trim
+  ctx.fillStyle = '#aa8830';
+  for (let x = -L3.cameraX % 80; x < W; x += 80) {
+    ctx.fillRect(x, L3.groundY + 4, 60, 2);
+  }
+
+  // Platforms (golden stages)
+  L3.platforms.forEach((pl,i) => {
+    if (i === 0) return;
+    const sx = pl.x - L3.cameraX;
+    if (sx > W+50 || sx+pl.w < -50) return;
+    ctx.fillStyle = '#8a6020'; ctx.fillRect(sx, pl.y, pl.w, pl.h);
+    ctx.fillStyle = '#aa8030'; ctx.fillRect(sx, pl.y, pl.w, 3);
+    // Gold glow
+    ctx.fillStyle = 'rgba(255,200,50,0.06)';
+    ctx.fillRect(sx-4, pl.y-4, pl.w+8, pl.h+8);
+  });
+
+  // Stars
+  L3.stars.forEach(s => {
+    if (s.collected) return;
+    const sx = s.x - L3.cameraX;
+    if (sx > W+30 || sx < -30) return;
+
+    ctx.save();
+    ctx.translate(sx, s.y);
+    ctx.rotate(s.angle);
+
+    // Star shape
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const a = (i * 4 * Math.PI / 5) - Math.PI / 2;
+      const r = i === 0 ? 10 : 10;
+      ctx.lineTo(Math.cos(a) * 10, Math.sin(a) * 10);
+      const a2 = a + 2 * Math.PI / 10;
+      ctx.lineTo(Math.cos(a2) * 4, Math.sin(a2) * 4);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Star glow
+    ctx.fillStyle = 'rgba(255,215,0,0.2)';
+    ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2); ctx.fill();
+
+    ctx.restore();
+  });
+
+  // Player (actor Fatih in suit)
+  const psx = L3.player.x - L3.cameraX;
+  drawFatih(psx, L3.player.y, 1.7, L3.player.facing, Math.floor(L3.player.runFrame), 'actor');
+  // Designer Sıla
+  drawSila(psx - 45, L3.player.y + 2, 1.5, L3.player.facing, Math.floor(L3.player.runFrame), 'designer');
+
+  // Name tags with titles
+  ctx.font = '7px "Press Start 2P"'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#FFD700';
+  ctx.fillText('🎭 OYUNCU FATİH', psx + 16, L3.player.y - 12);
+  ctx.fillStyle = '#80d0ff';
+  ctx.fillText('🎨 DESIGNER SILA', psx - 29, L3.player.y - 8);
+  ctx.textAlign = 'left';
+
+  drawParticles(L3.cameraX);
+
+  if (L3.won) {
+    ctx.fillStyle = `rgba(255,215,0,${Math.min(1, (stateTimer-10)*0.02)})`;
+    ctx.font = '14px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillText('⭐ HAYALLERİNİZE ULAŞTINIZ! ⭐', W/2, H/2 - 10);
+    ctx.font = '10px "Press Start 2P"';
+    ctx.fillText('💕 Birlikte her şey mümkün! 💕', W/2, H/2 + 20);
+    ctx.textAlign = 'left';
+  }
+}
+
+// ============ ENDING SCENE ============
+function drawEnding() {
+  // Beautiful night sky with aurora
+  const sg = ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#050515'); sg.addColorStop(0.3,'#0a0a2a'); sg.addColorStop(1,'#151030');
+  ctx.fillStyle = sg; ctx.fillRect(0,0,W,H);
+
+  const t = Date.now() * 0.001;
+
+  // Aurora effect
+  for (let i = 0; i < 5; i++) {
+    const ax = W/2 + Math.sin(t * 0.3 + i) * 200;
+    const ay = 80 + i * 20;
+    const ag = ctx.createRadialGradient(ax, ay, 10, ax, ay, 150);
+    const hue = (t * 20 + i * 30) % 360;
+    ag.addColorStop(0, `hsla(${hue}, 60%, 50%, 0.06)`);
+    ag.addColorStop(1, 'transparent');
+    ctx.fillStyle = ag;
+    ctx.fillRect(0, 0, W, H * 0.5);
+  }
+
+  // Many stars
+  for (let i = 0; i < 80; i++) {
+    const sx = (i * 97) % W;
+    const sy = (i * 61) % (H * 0.6);
+    const alpha = 0.3 + 0.5 * Math.sin(t * 2 + i);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fillRect(sx, sy, 1.5, 1.5);
+  }
+
+  // Ground (park/garden)
+  ctx.fillStyle = '#0a1a0a'; ctx.fillRect(0, 380, W, 120);
+  ctx.fillStyle = '#122a12'; ctx.fillRect(0, 380, W, 4);
+
+  // Trees silhouette
+  for (let i = 0; i < 6; i++) {
+    const tx = 50 + i * 140;
+    ctx.fillStyle = '#0a180a';
+    ctx.beginPath(); ctx.moveTo(tx, 380); ctx.lineTo(tx+15, 300 - i*10);
+    ctx.lineTo(tx+30, 380); ctx.fill();
+    ctx.fillRect(tx+12, 370, 6, 15);
+  }
+
+  // Bench
+  ctx.fillStyle = '#3a2518';
+  ctx.fillRect(320, 350, 160, 8);
+  ctx.fillRect(330, 340, 4, 15); ctx.fillRect(466, 340, 4, 15);
+  ctx.fillRect(340, 358, 6, 25); ctx.fillRect(454, 358, 6, 25);
+  // Bench back
+  ctx.fillRect(325, 325, 150, 6);
+  ctx.fillRect(330, 320, 4, 12); ctx.fillRect(466, 320, 4, 12);
+
+  // Characters sitting on bench
+  drawFatih(410, 298, 1.7, 'left', 0, 'actor');
+  drawSila(345, 302, 1.5, 'right', 0, 'designer');
+
+  // Big heart above them
+  const heartScale = 1 + Math.sin(t * 2) * 0.1;
+  ctx.save();
+  ctx.translate(400, 260);
+  ctx.scale(heartScale, heartScale);
+  drawHeart(0, 0, 20, 'rgba(255,64,129,0.6)');
+  ctx.restore();
+
+  // Floating hearts
+  for (let i = 0; i < 8; i++) {
+    const hx = 300 + i * 30 + Math.sin(t + i * 0.8) * 20;
+    const hy = 200 + Math.cos(t * 0.5 + i * 1.2) * 40;
+    const alpha = 0.2 + Math.sin(t + i) * 0.1;
+    drawHeart(hx, hy, 6 + Math.sin(t+i)*2, `rgba(255,128,180,${alpha})`);
+  }
+
+  // Shooting star occasionally
+  if (Math.sin(t * 0.5) > 0.95) {
+    const ssX = ((t * 200) % W);
+    ctx.strokeStyle = 'rgba(255,255,200,0.6)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(ssX, 50); ctx.lineTo(ssX + 40, 80); ctx.stroke();
+  }
+
+  // Fireflies
+  for (let i = 0; i < 10; i++) {
+    const fx = 100 + i * 70 + Math.sin(t * 0.7 + i * 2) * 30;
+    const fy = 360 + Math.cos(t * 0.5 + i * 1.5) * 20;
+    const fa = 0.3 + 0.4 * Math.sin(t * 3 + i * 4);
+    ctx.fillStyle = `rgba(200,255,100,${fa})`;
+    ctx.beginPath(); ctx.arc(fx, fy, 2, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = `rgba(200,255,100,${fa * 0.3})`;
+    ctx.beginPath(); ctx.arc(fx, fy, 6, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+// ============ TITLE SCREEN ============
+function drawTitle() {
+  const sg = ctx.createLinearGradient(0,0,0,H);
+  sg.addColorStop(0,'#0a0515'); sg.addColorStop(0.5,'#1a0a25'); sg.addColorStop(1,'#0a0515');
+  ctx.fillStyle = sg; ctx.fillRect(0,0,W,H);
+
+  const t = Date.now() * 0.001;
+
+  // Animated stars
+  for (let i = 0; i < 60; i++) {
+    const sx = (i * 131) % W;
+    const sy = (i * 73) % H;
+    const alpha = 0.3 + 0.5 * Math.sin(t * 2 + i);
+    ctx.fillStyle = `rgba(255,200,220,${alpha})`;
+    ctx.fillRect(sx, sy, 2, 2);
+  }
+
+  // Floating hearts background
+  for (let i = 0; i < 12; i++) {
+    const hx = (i * 70 + t * 15) % W;
+    const hy = H - ((i * 50 + t * 30) % (H + 50));
+    drawHeart(hx, hy, 4 + i % 3, `rgba(255,64,129,${0.08 + (i%3)*0.03})`);
+  }
+
+  // Characters
+  drawSila(280, 250, 2.0, 'right', Math.floor(t) % 2, 'normal');
+  drawFatih(430, 245, 2.0, 'left', Math.floor(t) % 2, 'normal');
+
+  // Heart between them
+  const hs = 1 + Math.sin(t * 2) * 0.15;
+  ctx.save(); ctx.translate(390, 280); ctx.scale(hs, hs);
+  drawHeart(0, 0, 15, '#ff4081');
+  ctx.restore();
+
+  // Title
+  ctx.textAlign = 'center';
+  ctx.font = '22px "Press Start 2P"';
+  ctx.fillStyle = '#ff4081';
+  ctx.shadowColor = 'rgba(255,64,129,0.5)'; ctx.shadowBlur = 20;
+  ctx.fillText('SILA & FATİH', W/2, 80);
+  ctx.font = '12px "Press Start 2P"';
+  ctx.fillStyle = '#ff80ab';
+  ctx.fillText('BİZİM HİKAYEMİZ', W/2, 115);
+  ctx.shadowBlur = 0;
+
+  // Subtitle
+  ctx.font = '9px "Press Start 2P"';
+  ctx.fillStyle = '#aa6080';
+  ctx.fillText('💕 Sevgililer Günü 2026 💕', W/2, 150);
+
+  // Blink text
+  if (Math.floor(t) % 2 === 0) {
+    ctx.font = '10px "Press Start 2P"';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('🎮 ENTER ile başla 🎮', W/2, 440);
+  }
+
+  ctx.textAlign = 'left';
+}
+
+// ============ PARTICLES ============
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.5) * 5 - 2,
+      life: 1,
+      size: 2 + Math.random() * 3,
+      color
+    });
+  }
+}
+
+function drawParticles(camX = 0) {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= 0.02;
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x - camX, p.y, p.size * p.life, p.size * p.life);
+  });
+  ctx.globalAlpha = 1;
+}
+
+// ============ TRANSITIONS ============
+function startTransition(target) {
+  transition = { active: true, alpha: 0, target, fadeIn: true };
+}
+
+function updateTransition() {
+  if (!transition.active) return false;
+  if (transition.fadeIn) {
+    transition.alpha += 0.03;
+    if (transition.alpha >= 1) {
+      transition.fadeIn = false;
+      switchState(transition.target);
+    }
+  } else {
+    transition.alpha -= 0.03;
+    if (transition.alpha <= 0) {
+      transition.active = false;
+    }
+  }
+  return true;
+}
+
+function drawTransition() {
+  if (!transition.active) return;
+  ctx.fillStyle = `rgba(0,0,0,${transition.alpha})`;
+  ctx.fillRect(0, 0, W, H);
+}
+
+// ============ STATE MACHINE ============
+function switchState(s) {
+  state = s;
+  stateTimer = 0;
+  dialogIndex = 0;
+
+  document.getElementById('hudLeft').textContent = '';
+  document.getElementById('hudCenter').textContent = '';
+  document.getElementById('hudRight').textContent = '';
+
+  switch(s) {
+    case 'level1': initLevel1(); break;
+    case 'level2': initLevel2(); break;
+    case 'level3': initLevel3(); break;
+  }
+}
+
+function handleInput(code) {
+  if (transition.active) return;
+
+  if (state === 'title' && (code === 'Enter' || code === 'Space')) {
+    startTransition('intro');
+    return;
+  }
+
+  // Dialog advance
+  if (['intro','cutscene1','cutscene2','cutscene3','ending'].includes(state)) {
+    if (code === 'Enter' || code === 'Space') {
+      const dlist = getDialogList();
+      if (!dlist) return;
+      const d = dlist[dialogIndex];
+      const maxChars = Math.floor(stateTimer / 2);
+      if (d && maxChars < d.text.length) {
+        stateTimer = d.text.length * 2 + 10;
+        return;
+      }
+      dialogIndex++;
+      stateTimer = 0;
+      if (dialogIndex >= dlist.length) {
+        if (state === 'intro') startTransition('cutscene1');
+        else if (state === 'cutscene1') startTransition('level1');
+        else if (state === 'cutscene2') startTransition('level2');
+        else if (state === 'cutscene3') startTransition('level3');
+        else if (state === 'ending') startTransition('title');
+      }
+    }
+  }
+}
+
+function getDialogList() {
+  switch(state) {
+    case 'intro': return dialogs.intro;
+    case 'cutscene1': return dialogs.level1intro;
+    case 'cutscene2': return dialogs.level2intro;
+    case 'cutscene3': return dialogs.level3intro;
+    case 'ending': return dialogs.ending;
+  }
+  return null;
+}
+
+// ============ MAIN LOOP ============
+function gameLoop() {
+  stateTimer++;
+  animTimer++;
+  if (animTimer % 10 === 0) animFrame++;
+
+  // Update
+  if (!transition.active) {
+    switch(state) {
+      case 'level1': updateLevel1(); break;
+      case 'level2': updateLevel2(); break;
+      case 'level3': updateLevel3(); break;
+    }
+  }
+  updateTransition();
+
+  // Draw
+  switch(state) {
+    case 'title': drawTitle(); break;
+    case 'intro': drawCozyRoom(); break;
+    case 'cutscene1':
+      drawCozyRoom();
+      break;
+    case 'level1': drawLevel1(); break;
+    case 'cutscene2':
+      // Show a brief city scene
+      drawLevel2();
+      break;
+    case 'level2': drawLevel2(); break;
+    case 'cutscene3':
+      drawLevel3();
+      break;
+    case 'level3': drawLevel3(); break;
+    case 'ending': drawEnding(); break;
+  }
+
+  // Dialog overlay
+  const dlist = getDialogList();
+  if (dlist && dialogIndex < dlist.length) {
+    drawDialogBox(dlist[dialogIndex]);
+  }
+
+  drawTransition();
+
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>
